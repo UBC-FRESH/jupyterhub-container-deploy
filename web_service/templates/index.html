@@ -1,0 +1,80 @@
+<!-- A basic HTML template for the front end of your Flask app -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JupyterHub Deployment Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">JupyterHub Deployment Dashboard</h1>
+
+        <!-- Existing Hub Instances -->
+        <div id="existing-hubs" class="mb-5">
+            <h2>Existing JupyterHub Instances</h2>
+            <ul class="list-group" id="hub-list">
+                <!-- List of current deployments will be rendered here by JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Deploy New Hub -->
+        <div id="new-hub-deployment">
+            <h2>Deploy a New JupyterHub Instance</h2>
+            <button id="deploy-new-hub" class="btn btn-primary">Deploy New Hub</button>
+        </div>
+
+    </div>
+
+    <script>
+        // JavaScript to manage interactions with the Flask API
+        $(document).ready(function() {
+            // Fetch the list of existing JupyterHub instances
+            function fetchHubList() {
+                $.get('/list', function(data) {
+                    let hubList = $('#hub-list');
+                    hubList.empty();
+                    if (data.length === 0) {
+                        hubList.append('<li class="list-group-item">No JupyterHub instances are currently deployed.</li>');
+                    } else {
+                        data.forEach(function(hub) {
+                            let hubStatus = hub.status === 'Running' ? '🟢' : '🔴';
+                            hubList.append(
+                                `<li class="list-group-item">
+                                    ${hubStatus} ${hub.name}
+                                    <button class="btn btn-sm btn-danger float-end" onclick="stopHub('${hub.name}')">Stop</button>
+                                </li>`
+                            );
+                        });
+                    }
+                });
+            }
+
+            // Deploy a new JupyterHub instance
+            $('#deploy-new-hub').click(function() {
+                $.post('/start', function(data) {
+                    alert('New JupyterHub instance deployed! Redirecting...');
+                    window.location.href = data;
+                }).fail(function() {
+                    alert('Failed to deploy a new JupyterHub instance.');
+                });
+            });
+
+            // Stop an existing JupyterHub instance
+            window.stopHub = function(hubName) {
+                $.post(`/stop/${hubName}`, function() {
+                    alert(`${hubName} has been stopped.`);
+                    fetchHubList();
+                }).fail(function() {
+                    alert(`Failed to stop ${hubName}.`);
+                });
+            }
+
+            // Initial load of the hub list
+            fetchHubList();
+        });
+    </script>
+</body>
+</html>
