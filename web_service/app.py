@@ -64,6 +64,15 @@ def start_hub():
     # Redirect to the new JupyterHub instance
     return redirect(f"/jupyterhub{new_number}")
 
+@app.route('/start/<hub_name>', methods=['POST'])
+def start_existing_hub(hub_name):
+    container = client.containers.get(hub_name)
+    if container.status == "Stopped":
+        container.start(wait=True)
+        return f"Started {hub_name}", 200
+    return f"Container {hub_name} is not in a stopped state.", 400
+
+
 # Stop an existing container
 @app.route('/stop/<hub_id>', methods=['POST'])
 def stop_hub(hub_id):
@@ -71,6 +80,47 @@ def stop_hub(hub_id):
     if container.status == "Running":
         container.stop(wait=True)
     return f"Stopped {hub_id}"
+
+@app.route('/check-archive-tag/<tag>', methods=['GET'])
+def check_archive_tag(tag):
+    archive_name = f"jh-archive-{tag}"
+    containers = client.containers.all()
+    for container in containers:
+        if container.name == archive_name:
+            return jsonify({"exists": True})
+    return jsonify({"exists": False})
+
+@app.route('/archive/<hub_name>', methods=['POST'])
+def archive_hub(hub_name):
+    print('foo', file=sys.stderr)
+    print(f'request.json: {type(request)}', file=sys.stderr)
+
+    tag = request.json.get('tag')
+    if not tag:
+        return "Tag is required", 400
+
+    print(f'tag: {tag}', file=sys.stderr)
+
+    archive_name = f"jh-archive-{tag}"
+    containers = client.containers.all()
+
+    print(f'archive_name: {archive_name}, containers: {containers}', file=sys.stderr)
+
+    # Ensure the archive name does not already exist
+    for container in containers:
+        if container.name == archive_name:
+            return f"Archive name {archive_name} already exists.", 400
+
+    print(f'foo', file=sys.stderr)
+
+    container = client.containers.get(hub_name)
+    if container.status == "Stopped":
+        container.rename(archive_name)
+        return f"{hub_name} has been archived as {archive_name}.", 200
+    return f"Container {hub_name} is not stopped and cannot be archived.", 400
+
+
+
 
 # Front end (app root path)
 @app.route('/')

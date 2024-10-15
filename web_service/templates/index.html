@@ -7,6 +7,7 @@
     <title>JupyterHub Deployment Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="container mt-5">
@@ -26,11 +27,33 @@
             <button id="deploy-new-hub" class="btn btn-primary">Deploy New Hub</button>
         </div>
 
+        <!-- Archive Modal -->
+        <div class="modal" id="archiveModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Archive Container</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="archive-tag" class="form-label">Enter a tag to archive the container:</label>
+                        <input type="text" id="archive-tag" class="form-control">
+                        <div id="archive-warning" class="text-danger mt-2"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" id="archive-now" class="btn btn-primary" disabled>Archive Container Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // JavaScript to manage interactions with the Flask API
         $(document).ready(function() {
+            let containerToArchive = "";
+
             // Fetch the list of existing JupyterHub instances
             function fetchHubList() {
                 $.get('/list', function(data) {
@@ -41,10 +64,17 @@
                     } else {
                         data.forEach(function(hub) {
                             let hubStatus = hub.status === 'Running' ? '🟢' : '🔴';
+                            let actionButton = hub.status === 'Running'
+                                ? `<button class="btn btn-sm btn-danger float-end" onclick="stopHub('${hub.name}')">Stop</button>`
+                                : `<button class="btn btn-sm btn-success float-end" onclick="startHub('${hub.name}')">Start</button>`;
+                            let archiveButton = hub.status === 'Stopped'
+                                ? `<button class="btn btn-sm btn-warning float-end me-2" onclick="prepareArchive('${hub.name}')">Archive</button>`
+                                : '';
                             hubList.append(
                                 `<li class="list-group-item">
                                     ${hubStatus} ${hub.name}
-                                    <button class="btn btn-sm btn-danger float-end" onclick="stopHub('${hub.name}')">Stop</button>
+                                    ${actionButton}
+                                    ${archiveButton}
                                 </li>`
                             );
                         });
@@ -71,6 +101,75 @@
                     alert(`Failed to stop ${hubName}.`);
                 });
             }
+
+            // Start a stopped JupyterHub instance
+            window.startHub = function(hubName) {
+                $.post(`/start/${hubName}`, function() {
+                    alert(`${hubName} has been started.`);
+                    fetchHubList();
+                }).fail(function() {
+                    alert(`Failed to start ${hubName}.`);
+                });
+            }
+
+            // Prepare to archive a container
+            window.prepareArchive = function(hubName) {
+                containerToArchive = hubName;
+                $('#archive-tag').val('');
+                $('#archive-warning').text('');
+                $('#archive-now').prop('disabled', true);
+                //alert(`Attempting to archive container: ${hubName}`);
+                $('#archiveModal').modal('show');
+                //alert(`xAttempting to archive container: ${hubName}`);
+            }
+
+            // Validate archive tag
+            $('#archive-tag').on('input', function() {
+                let tag = $(this).val().trim();
+                if (tag) {
+                    $.get(`/check-archive-tag/${tag}`, function(data) {
+                        if (data.exists) {
+                            $('#archive-warning').text('Tag already exists. Please choose another tag.');
+                            $('#archive-now').prop('disabled', true);
+                        } else {
+                            $('#archive-warning').text('');
+                            $('#archive-now').prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $('#archive-warning').text('');
+                    $('#archive-now').prop('disabled', true);
+                }
+            });
+
+            // Archive the container
+            $('#archive-now').click(function() {
+                let tag = $('#archive-tag').val().trim();
+                if (tag) {
+                    alert(`tag: ${tag}, containerToArchive: ${containerToArchive}`);
+                    //$.post(`/archive/${containerToArchive}`, { tag: tag }, function() {
+                    //    alert(`${containerToArchive} has been archived with tag ${tag}.`);
+                    //    $('#archiveModal').modal('hide');
+                    //    fetchHubList();
+                    //}).fail(function() {
+                    //    alert(`Failed to archive ${containerToArchive}.`);
+                    //});
+                    $.ajax({
+                        url: `/archive/${containerToArchive}`,
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ tag: tag }),
+                        success: function() {
+                            alert(`${containerToArchive} has been archived with tag ${tag}.`);
+                            $('#archiveModal').modal('hide');
+                            fetchHubList();
+                        },
+                        error: function() {
+                            alert(`Failed to archive ${containerToArchive}.`);
+                        }
+                    });
+                }
+            });
 
             // Initial load of the hub list
             fetchHubList();
