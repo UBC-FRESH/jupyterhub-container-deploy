@@ -23,30 +23,9 @@
 
         <!-- Deploy New Hub -->
         <div id="new-hub-deployment">
-            <h2>Deploy a JupyterHub Instance</h2>
-            <button id="deploy-new-hub" class="btn btn-primary mt-2" disabled>Deploy New Hub</button>
-            
-            <!-- New Hub Description Modal -->
-            <div class="modal" id="newHubModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">New JupyterHub Instance Description</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <label for="new-hub-description" class="form-label">Enter a description for the new container:</label>
-                            <input type="text" id="new-hub-description" class="form-control">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" id="deploy-new-hub-now" class="btn btn-primary">Deploy New Hub</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <h2>Deploy a New JupyterHub Instance</h2>
+            <button id="deploy-new-hub" class="btn btn-primary" disabled>Deploy New Hub</button>
             <button id="deploy-archived-hub" class="btn btn-secondary mt-2" disabled>Deploy Archived Hub</button>
-            <p></p><p>If deployment buttons are disabled, then all container slots are full (archive one or more containers before deploying more hubs).</p>
         </div>
 
         <!-- Archive Modal -->
@@ -153,29 +132,12 @@
 
             // Deploy a new JupyterHub instance
             $('#deploy-new-hub').click(function() {
-                $('#newHubModal').modal('show');
-            });
-
-            // Deploy the new JupyterHub instance with description
-            $('#deploy-new-hub-now').click(function() {
-                let description = $('#new-hub-description').val().trim();
-                if (description) {
-                    $.ajax({
-                        url: '/start',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({ description: description }),
-                        success: function(data) {
-                            alert('New JupyterHub instance deployed! Redirecting...');
-                            window.location.href = data;
-                        },
-                        error: function() {
-                            alert('Failed to deploy a new JupyterHub instance.');
-                        }
-                    });
-                } else {
-                    alert('Description is required to deploy a new JupyterHub instance.');
-                }
+                $.post('/start', function(data) {
+                    alert('New JupyterHub instance deployed! Redirecting...');
+                    window.location.href = data;
+                }).fail(function() {
+                    alert('Failed to deploy a new JupyterHub instance.');
+                });
             });
 
             // Deploy an archived JupyterHub instance
@@ -191,8 +153,6 @@
                         });
                     }
                     $('#deployArchivedModal').modal('show');
-                }).fail(function() {
-                    alert('Failed to retrieve archived hubs.');
                 });
             });
 
@@ -200,17 +160,12 @@
             $('#deploy-archived-now').click(function() {
                 let selectedHub = $('#archived-hub-select').val();
                 if (selectedHub) {
-                    $.ajax({
-                        url: `/deploy-archived/${selectedHub}`,
-                        type: 'POST',
-                        success: function() {
-                            alert(`${selectedHub} has been deployed.`);
-                            $('#deployArchivedModal').modal('hide');
-                            fetchHubList();
-                        },
-                        error: function() {
-                            alert(`Failed to deploy ${selectedHub}.`);
-                        }
+                    $.post(`/deploy-archived/${selectedHub}`, function() {
+                        alert(`${selectedHub} has been deployed.`);
+                        $('#deployArchivedModal').modal('hide');
+                        fetchHubList();
+                    }).fail(function() {
+                        alert(`Failed to deploy ${selectedHub}.`);
                     });
                 }
             });
@@ -267,19 +222,12 @@
             $('#archive-now').click(function() {
                 let tag = $('#archive-tag').val().trim();
                 if (tag) {
-                    $.ajax({
-                        url: `/archive/${containerToArchive}`,
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({ tag: tag }),
-                        success: function() {
-                            alert(`${containerToArchive} has been archived with tag ${tag}.`);
-                            $('#archiveModal').modal('hide');
-                            fetchHubList();
-                        },
-                        error: function() {
-                            alert(`Failed to archive ${containerToArchive}.`);
-                        }
+                    $.post(`/archive/${containerToArchive}`, { tag: tag }, function() {
+                        alert(`${containerToArchive} has been archived with tag ${tag}.`);
+                        $('#archiveModal').modal('hide');
+                        fetchHubList();
+                    }).fail(function() {
+                        alert(`Failed to archive ${containerToArchive}.`);
                     });
                 }
             });

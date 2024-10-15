@@ -1,0 +1,151 @@
+from flask import Flask, request, jsonify, redirect, url_for, render_template
+import pylxd
+import subprocess
+import sys
+
+app = Flask(__name__)
+client = pylxd.Client()
+
+# List existing container deployments
+@app.route('/list', methods=['GET'])
+def list_hubs():
+    containers = client.containers.all()
+    #print([c.name for c in containers], file=sys.stderr)
+    hub_list = [{"name": c.name, "status": c.status} for c in containers if "jupyterhub" in c.name]
+    return jsonify(hub_list)
+
+# List only archived containers
+@app.route('/list-archived', methods=['GET'])
+def list_archived_hubs():
+    containers = client.containers.all()
+    archived_list = [{"name": c.name, "status": c.status} for c in containers if c.name.startswith("jh-archive")]
+    return jsonify(archived_list)
+
+# Start a new JupyterHub container
+@app.route('/start', methods=['POST'])
+def start_hub():
+    # Find available "xx" value
+    used_numbers = [int(c.name[-2:]) for c in client.containers.all() if "jupyterhub" in c.name]
+    available_numbers = [i for i in range(1, 11) if i not in used_numbers]
+    
+    print(f'used_numbers: {used_numbers}', file=sys.stderr) # debug
+    print(f'available_numbers: {available_numbers}', file=sys.stderr) # debug
+
+    if not available_numbers:
+        return "No available slots for new JupyterHub instances", 400
+
+    new_number = f"{available_numbers[0]:02d}"
+    new_container_name = f"jupyterhub{new_number}"
+
+    ## Copy the template
+    #template = client.containers.get("jh-template")
+    #new_container = template.copy(new_container_name, wait=True)
+
+    # Create a new container using the template container configuration
+    template_container_name = "jh-template"
+    config = {
+        'name': new_container_name,
+        'source': {
+            'type': 'copy',
+            'source': template_container_name,
+        }
+    }
+    new_container = client.instances.create(config, wait=True)
+    
+    # Start the new container
+    new_container.start(wait=True)
+
+    # Add LXD proxy device to map container port 8000 to host port 80xx
+    host_port = f"80{new_number}"
+    new_container.devices.update({
+        f"proxy-{host_port}": {
+            "type": "proxy",
+            "listen": f"tcp:0.0.0.0:{host_port}",
+            "connect": "tcp:127.0.0.1:8000"
+        }
+    })
+
+    ## Reload NGINX to apply new configuration (assuming you have an NGINX template to include new paths)
+    #subprocess.run(["sudo", "nginx", "-s", "reload"])
+
+    # Redirect to the new JupyterHub instance
+    return redirect(f"/jupyterhub{new_number}")
+
+# Start an archived container
+@app.route('/deploy-archived/<hub_name>', methods=['POST'])
+def deploy_archived_hub(hub_name):
+    print('foo', file=sys.stderr)
+    try:
+        container = client.containers.get(hub_name)
+        if container.status == "Stopped":
+            container.start(wait=True)
+            return f"{hub_name} has been started.", 200
+        return f"{hub_name} is already running.", 400
+    except pylxd.exceptions.NotFound:
+        return f"Container {hub_name} not found.", 404
+
+@app.route('/start/<hub_name>', methods=['POST'])
+def start_existing_hub(hub_name):
+    container = client.containers.get(hub_name)
+    if container.status == "Stopped":
+        container.start(wait=True)
+        return f"Started {hub_name}", 200
+    return f"Container {hub_name} is not in a stopped state.", 400
+
+
+# Stop an existing container
+@app.route('/stop/<hub_name>', methods=['POST'])
+def stop_hub(hub_name):
+    container = client.containers.get(hub_name)
+    if container.status == "Running":
+        container.stop(wait=True)
+    return f"Stopped {hub_name}"
+
+@app.route('/check-archive-tag/<tag>', methods=['GET'])
+def check_archive_tag(tag):
+    archive_name = f"jh-archive-{tag}"
+    containers = client.containers.all()
+    for container in containers:
+        if container.name == archive_name:
+            return jsonify({"exists": True})
+    return jsonify({"exists": False})
+
+@app.route('/archive/<hub_name>', methods=['POST'])
+def archive_hub(hub_name):
+    print('foo', file=sys.stderr)
+    print(f'request.json: {type(request)}', file=sys.stderr)
+
+    tag = request.json.get('tag')
+    if not tag:
+        return "Tag is required", 400
+
+    print(f'tag: {tag}', file=sys.stderr)
+
+    archive_name = f"jh-archive-{tag}"
+    containers = client.containers.all()
+
+    print(f'archive_name: {archive_name}, containers: {containers}', file=sys.stderr)
+
+    # Ensure the archive name does not already exist
+    for container in containers:
+        if container.name == archive_name:
+            return f"Archive name {archive_name} already exists.", 400
+
+    print(f'foo', file=sys.stderr)
+
+    container = client.containers.get(hub_name)
+    if container.status == "Stopped":
+        container.rename(archive_name)
+        return f"{hub_name} has been archived as {archive_name}.", 200
+    return f"Container {hub_name} is not stopped and cannot be archived.", 400
+
+
+
+
+# Front end (app root path)
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=5000)
