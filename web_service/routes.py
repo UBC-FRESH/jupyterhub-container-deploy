@@ -1,50 +1,53 @@
-from flask import Flask, request, jsonify, redirect, url_for, render_template
+from flask import Blueprint, request, jsonify, redirect, url_for, render_template, current_app
 import pylxd
 import subprocess
 import sys
+import asyncio
 
-app = Flask(__name__)
+
+#main_routes = Blueprint('main_routes', __name__, url_prefix='/jupyterhub-deploy/')
+main_routes = Blueprint('main_routes', __name__)
 client = pylxd.Client()
 
-# List existing container deployments
-@app.route('/list', methods=['GET'])
+# Return the maximum number of containers to deploy at once
+@main_routes.route('/max-deploy', methods=['GET'])
+def max_deploy():
+    return jsonify(current_app.config['MAX_DEPLOY'])
+
+# Return app configuration data
+@main_routes.route('/config', methods=['GET'])
+def config():
+    return jsonify(current_app.config)
+
+# List existing container deploymenJayats
+@main_routes.route('/list', methods=['GET'])
 def list_hubs():
     containers = client.containers.all()
     hub_list = [{
+        "name": c.name,
         "name": c.name, 
         "status": c.status,
         "description": c.config.get("user.description", "No description provided")
     } for c in containers if "jupyterhub" in c.name]
     return jsonify(hub_list)
 
+
 # List only archived containers
-@app.route('/list-archived', methods=['GET'])
+@main_routes.route('/list-archived', methods=['GET'])
 def list_archived_hubs():
     containers = client.containers.all()
     archived_list = [{
+        "name": c.name,
         "name": c.name, 
         "status": c.status,
         "description": c.config.get("user.description", "No description provided")
     } for c in containers if c.name.startswith("jh-archive") and c.status.lower() == "stopped"]
     return jsonify(archived_list)
 
-@app.route('/start', methods=['POST'])
-def start_hub():
-    data = request.get_json()
-    description = data.get('description')
-    
-    # Find available "xx" value
-    used_numbers = [int(c.name[-2:]) for c in client.containers.all() if "jupyterhub" in c.name]
-    available_numbers = [i for i in range(1, 11) if i not in used_numbers]
 
-    if not available_numbers:
-        return "No available slots for new JupyterHub instances", 400
-
-    new_number = f"{available_numbers[0]:02d}"
+# Define an async function for creating containers
+async def create_container(new_number, description, template_container_name='jh-template'):
     new_container_name = f"jupyterhub{new_number}"
-
-    # Create a new container using the template container configuration
-    template_container_name = "jh-template"
     config = {
         'name': new_container_name,
         'source': {
@@ -56,12 +59,8 @@ def start_hub():
         }
     }
     new_container = client.instances.create(config, wait=True)
-
-    # Start the new container
     new_container.start(wait=True)
-
-    # Add LXD proxy device to map container port 8000 to host port 80xx
-    host_port = f"80{new_number}"
+    host_port = f"81{new_number}"
     new_container.devices.update({
         f"proxy-{host_port}": {
             "type": "proxy",
@@ -70,14 +69,28 @@ def start_hub():
         }
     })
     new_container.save(wait=True)
+    return new_container
 
+
+@main_routes.route('/start', methods=['POST'])
+async def start_hub():
+    data = request.get_json()
+    description = data.get('description')
+    used_numbers = [int(c.name[-2:]) for c in client.containers.all() if "jupyterhub" in c.name]
+    available_numbers = [i for i in range(1, current_app.config['MAX_DEPLOY']+1) if i not in used_numbers]
+    if not available_numbers:
+        return "No available slots for new JupyterHub instances", 400
+    new_number = f"{available_numbers[0]:02d}"
+    
+    container = await create_container(new_number, description)
     return jsonify(f"/jupyterhub{new_number}"), 200
 
+
 # Deploy an archived container
-@app.route('/deploy-archived/<hub_name>', methods=['POST'])
+@main_routes.route('/deploy-archived/<hub_name>', methods=['POST'])
 def deploy_archived_hub(hub_name):
     used_numbers = [int(c.name[-2:]) for c in client.containers.all() if "jupyterhub" in c.name and c.name[-2:].isdigit()]
-    available_numbers = [i for i in range(1, 11) if i not in used_numbers]
+    available_numbers = [i for i in range(1, current_app.config['MAX_DEPLOY']+1) if i not in used_numbers]
 
     if not available_numbers:
         return "No available slots for deploying archived JupyterHub instances", 400
@@ -95,7 +108,7 @@ def deploy_archived_hub(hub_name):
             container.start(wait=True)
 
             # Add LXD proxy device to map container port 8000 to host port 80xx
-            host_port = f"80{new_number}"
+            host_port = f"81{new_number}"
             container.devices.update({
                 f"proxy-{host_port}": {
                     "type": "proxy",
@@ -111,8 +124,9 @@ def deploy_archived_hub(hub_name):
     except pylxd.exceptions.NotFound:
         return f"Container {hub_name} not found.", 404
 
+
 # Stop a running container
-@app.route('/stop/<hub_name>', methods=['POST'])
+@main_routes.route('/stop/<hub_name>', methods=['POST'])
 def stop_hub(hub_name):
     try:
         container = client.containers.get(hub_name)
@@ -124,7 +138,7 @@ def stop_hub(hub_name):
         return f"Container {hub_name} not found.", 404
 
 # Check if an archive tag is available
-@app.route('/check-archive-tag/<tag>', methods=['GET'])
+@main_routes.route('/check-archive-tag/<tag>', methods=['GET'])
 def check_archive_tag(tag):
     archive_name = f"jh-archive-{tag}"
     containers = client.containers.all()
@@ -132,7 +146,7 @@ def check_archive_tag(tag):
     return jsonify({"exists": exists})
 
 # Archive a stopped container
-@app.route('/archive/<hub_name>', methods=['POST'])
+@main_routes.route('/archive/<hub_name>', methods=['POST'])
 def archive_hub(hub_name):
     data = request.get_json(silent=True)
     print(f'request json: {data}', file=sys.stderr)
@@ -160,9 +174,8 @@ def archive_hub(hub_name):
         return f"Container {hub_name} not found.", 404
 
 # Front end (app root path)
-@app.route('/')
+@main_routes.route('/')
 def index():
     return render_template('index.html')
 
-if __name__ == '__main__':
-    app.run(host='localhost', port=5000)
+

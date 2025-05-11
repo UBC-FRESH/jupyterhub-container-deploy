@@ -1,0 +1,16 @@
+[Unit]
+Description=JupyterHub Container Deployment App Service
+After=network.target
+
+[Service]
+Environment="PATH=/opt/jupyterhub-container-deploy/.venv/bin"
+Environment="GUNICORN_CONF_MODULE=/opt/jupyterhub-container-deploy/web_service/gunicorn.conf.py"
+Environment="FLASK_ENV=production"
+WorkingDirectory=/opt/jupyterhub-container-deploy
+ExecStart=/opt/jupyterhub-container-deploy/.venv/bin/gunicorn -b 127.0.0.1:5000 run:app
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+

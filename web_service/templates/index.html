@@ -25,7 +25,7 @@
         <div id="new-hub-deployment">
             <h2>Deploy a JupyterHub Instance</h2>
             <button id="deploy-new-hub" class="btn btn-primary mt-2" disabled>Deploy New Hub</button>
-            
+
             <!-- New Hub Description Modal -->
             <div class="modal" id="newHubModal" tabindex="-1">
                 <div class="modal-dialog">
@@ -97,11 +97,29 @@
         // JavaScript to manage interactions with the Flask API
         $(document).ready(function() {
             let containerToArchive = "";
+            let baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, ""); // Get current base URL
+            // Function to fetch and assign the int value, returns maxDeployValue
+            async function getMaxDeploy() {
+                try {
+                    const response = await fetch(`${baseUrl}/max-deploy`);
+                    if (!response.ok) {
+                        throw new Error(`Error fetching ${baseUrl}/max-deploy`);
+                    }
+                    const data = await response.json();
+                    // Ensure data is a valid integer string before parsing
+                    if (typeof data === 'number' && !isNaN(data)) {
+                        return data;
+                    } else {
+                        throw new Error(`Invalid data: ${data}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching max deploy value:', error);
+                }
+            }
 
             // Fetch the list of existing JupyterHub instances
             function fetchHubList() {
-                $.get('/list', function(data) {
-                    let hubList = $('#hub-list');
+                $.get(`${baseUrl}/list`, function(data) {                    let hubList = $('#hub-list');
                     hubList.empty();
                     let usedNumbers = [];
                     if (data.length === 0) {
@@ -135,19 +153,22 @@
             }
 
             // Update the state of the deploy buttons
-            function updateDeployButtons(usedNumbers) {
+            async function updateDeployButtons(usedNumbers) {
                 let availableNumbers = [];
-                for (let i = 1; i <= 10; i++) {
-                    if (!usedNumbers.includes(i)) {
-                        availableNumbers.push(i);
+                const maxDeploy = await getMaxDeploy();
+                if (maxDeploy !== undefined) {
+                    for (let i = 1; i <= maxDeploy; i++) {
+                        if (!usedNumbers.includes(i)) {
+                            availableNumbers.push(i);
+                        }
                     }
-                }
-                if (availableNumbers.length > 0) {
-                    $('#deploy-new-hub').prop('disabled', false);
-                    $('#deploy-archived-hub').prop('disabled', false);
-                } else {
-                    $('#deploy-new-hub').prop('disabled', true);
-                    $('#deploy-archived-hub').prop('disabled', true);
+                    if (availableNumbers.length > 0) {
+                        $('#deploy-new-hub').prop('disabled', false);
+                        $('#deploy-archived-hub').prop('disabled', false);
+                    } else {
+                        $('#deploy-new-hub').prop('disabled', true);
+                        $('#deploy-archived-hub').prop('disabled', true);
+                    }
                 }
             }
 
@@ -161,7 +182,7 @@
                 let description = $('#new-hub-description').val().trim();
                 if (description) {
                     $.ajax({
-                        url: '/start',
+                        url: `${baseUrl}/start`,
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ description: description }),
@@ -180,7 +201,7 @@
 
             // Deploy an archived JupyterHub instance
             $('#deploy-archived-hub').click(function() {
-                $.get('/list-archived', function(data) {
+                $.get(`${baseUrl}/list-archived`, function(data) {
                     let archivedSelect = $('#archived-hub-select');
                     archivedSelect.empty();
                     if (data.length === 0) {
@@ -201,7 +222,7 @@
                 let selectedHub = $('#archived-hub-select').val();
                 if (selectedHub) {
                     $.ajax({
-                        url: `/deploy-archived/${selectedHub}`,
+                        url: `${baseUrl}/deploy-archived/${selectedHub}`,
                         type: 'POST',
                         success: function() {
                             alert(`${selectedHub} has been deployed.`);
@@ -217,7 +238,7 @@
 
             // Stop an existing JupyterHub instance
             window.stopHub = function(hubName) {
-                $.post(`/stop/${hubName}`, function() {
+                $.post(`${baseUrl}/stop/${hubName}`, function() {
                     alert(`${hubName} has been stopped.`);
                     fetchHubList();
                 }).fail(function() {
@@ -227,7 +248,7 @@
 
             // Start a stopped JupyterHub instance
             window.startHub = function(hubName) {
-                $.post(`/start/${hubName}`, function() {
+                $.post(`${baseUrl}/start/${hubName}`, function() {
                     alert(`${hubName} has been started.`);
                     fetchHubList();
                 }).fail(function() {
@@ -248,7 +269,7 @@
             $('#archive-tag').on('input', function() {
                 let tag = $(this).val().trim();
                 if (tag) {
-                    $.get(`/check-archive-tag/${tag}`, function(data) {
+                    $.get(`${baseUrl}/check-archive-tag/${tag}`, function(data) {
                         if (data.exists) {
                             $('#archive-warning').text('Tag already exists. Please choose another tag.');
                             $('#archive-now').prop('disabled', true);
@@ -268,7 +289,7 @@
                 let tag = $('#archive-tag').val().trim();
                 if (tag) {
                     $.ajax({
-                        url: `/archive/${containerToArchive}`,
+                        url: `${baseUrl}/archive/${containerToArchive}`,
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ tag: tag }),

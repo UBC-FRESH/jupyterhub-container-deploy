@@ -1,2 +1,4 @@
-flask
+flask[async]
+flask_cors
 pylxd
+gunicorn
