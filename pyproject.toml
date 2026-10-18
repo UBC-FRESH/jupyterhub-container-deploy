@@ -1,0 +1,51 @@
+# Tool configuration for the JupyterHub container deployment service. Each gate
+# configured here is also a check in the green dashboard (scripts/dashboard.py).
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["scripts", "tests", "web_service"]
+extend-exclude = ["tmp", "_build", ".venv", ".venv-dev", "web_service/gunicorn.conf.py"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "D", "ANN", "N", "PT", "SIM", "RUF", "C4"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+known-first-party = ["web_service", "tests", "scripts"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+"tests/fakes.py" = ["ANN401"]
+"docs/conf.py" = ["D", "ANN", "N"]
+# pylxd ships no type information, so the adapter handles its objects as Any at that boundary.
+"web_service/lxd_utils.py" = ["ANN401"]
+"web_service/templates/**" = ["ALL"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+mypy_path = "scripts"
+files = ["scripts", "tests", "docs/conf.py", "web_service", "run.py"]
+
+[[tool.mypy.overrides]]
+module = ["numpydoc", "numpydoc.*", "pylxd", "pylxd.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=scripts --cov=web_service --cov-branch --cov-report=term-missing --cov-fail-under=95"
+
+[tool.coverage.run]
+branch = true
+source = ["scripts", "web_service"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = [
+    'if __name__ == "__main__":',
+    'raise NotImplementedError',
+]
