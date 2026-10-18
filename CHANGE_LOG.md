@@ -51,3 +51,7 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   translated to a `BackendError`, so a failed read or write returns a JSON 502 instead of an HTML
   500. New tests cover the helpers, both routes, and the error translation. The dashboard is green
   with 219 tests and 99.74 percent branch coverage.
+- Completed P1.2 (#14). Wrote `docs/guides/operations.rst`: the routine create, stop, start,
+  archive, and restore tasks; the health and capacity checks; the full-capacity incident; and the
+  restart discipline. Linked it from the docs index and `docs/llms.txt`. All Phase 1 tasks are
+  complete; the phase is ready for its close-out.

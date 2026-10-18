@@ -13,6 +13,7 @@
 - [Usage](guides/usage.html): the HTTP API, the container lifecycle, and the dashboard.
 - [Configuration](guides/configuration.html): every environment variable and its default.
 - [Deployment](guides/deployment.html): the systemd unit, gunicorn, and the nginx reverse proxy.
+- [Operations runbook](guides/operations.html): routine tasks, monitoring, and the full-capacity incident.
 
 ## Reference
 

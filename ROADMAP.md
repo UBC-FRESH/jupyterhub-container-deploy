@@ -107,9 +107,9 @@ Goal: make the fifty-container deployment easy to operate: health checks, a capa
   - [x] Add `HubManager.capacity()`.
   - [x] Add `GET /health` and `GET /capacity`.
   - [x] Add tests for the helper and both routes.
-- [ ] P1.2 Operations runbook (#14)
-  - [ ] Write `docs/guides/operations.rst`.
-  - [ ] Link it from `docs/index.rst` and `docs/llms.txt`.
+- [x] P1.2 Operations runbook (#14)
+  - [x] Write `docs/guides/operations.rst`.
+  - [x] Link it from `docs/index.rst` and `docs/llms.txt`.
 
 Acceptance criteria:
 
