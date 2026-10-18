@@ -12,8 +12,8 @@ keep their format.
 | P0 Bootstrap and hardening | #1 | `feature/p0-bootstrap-scaffold` | complete |
 | P1 Capacity and operations | #12 | `feature/p1-capacity-operations` | complete |
 | P2 API and access control | #16 | `feature/p2-api-access` | complete |
-| P3 Deployment and packaging | #20 | `feature/p3-deployment` | active |
-| P4 Verify and release | TBD | `feature/p4-release` | planned |
+| P3 Deployment and packaging | #20 | `feature/p3-deployment` | complete |
+| P4 Verify and release | #24 | `feature/p4-release` | active |
 | P5 Operate and maintain | TBD | `feature/p5-operate` | planned |
 
 ## Lifecycle Map
@@ -142,7 +142,7 @@ Acceptance criteria:
 
 Parent issue: #20
 Branch: `feature/p3-deployment`
-Status: active
+Status: complete
 
 Goal: make the service reproducible on a fresh host: an idempotent install and upgrade script, and a finished nginx reverse proxy configuration.
 
@@ -161,18 +161,25 @@ Acceptance criteria:
 
 ## Phase 4: Verify and release
 
-Parent issue: TBD
+Parent issue: #24
 Branch: `feature/p4-release`
-Status: planned
+Status: active
 
 Goal: verify the acceptance criteria end to end and cut the first tagged release.
 
-- [ ] P4.1 Run the acceptance checks on a clean host and record the evidence
-- [ ] P4.2 Write the release notes and tag `v0.1.0` (approval required)
+- [ ] P4.1 Clean-checkout acceptance rehearsal (#25)
+  - [ ] Clone `main` into a temporary directory and run the dashboard.
+  - [ ] Run the validator and the install dry run in the clone.
+  - [ ] Record the evidence in `notes/reference/acceptance.md`.
+- [ ] P4.2 Release notes and the v0.1.0 tag (#26)
+  - [ ] Write `notes/releases/v0.1.0.md`.
+  - [ ] Set the version in `CITATION.cff`.
+  - [ ] Queue the tag and release commands in the close-out report.
 
 Acceptance criteria:
 
-- <State the criterion that shows this phase met its goal.>
+- The acceptance checks pass on a clean checkout, and the evidence is recorded.
+- The tag is created on `main` only after approval, and the release notes list the changes and the known gaps.
 
 ## Phase 5: Operate and maintain
 
@@ -199,9 +206,13 @@ Acceptance criteria:
 3. Phase 2 is complete. Pull request #19 squash-merged into `main` as `955b5ff`; the squash tree
    equals the approved report head `02d97b3`. #16 is closed. Its tasks were P2.1 and P2.2 on #17
    and #18.
-4. Phase 3 is active. Its parent is #20, and its tasks are P3.1 and P3.2 on #21 and #22, linked as
-   sub-issues. The branch is `feature/p3-deployment`, branched from `955b5ff`.
-5. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
+4. Phase 3 is complete. Pull request #23 squash-merged into `main` as `a5b7b76`; the squash tree
+   equals the approved report head `0f911de`. #20 is closed. Its tasks were P3.1 and P3.2 on #21
+   and #22.
+5. Phase 4 is active. Its parent is #24, and its tasks are P4.1 and P4.2 on #25 and #26, linked as
+   sub-issues. The branch is `feature/p4-release`, branched from `a5b7b76`. The `v0.1.0` tag is an
+   approval-only action.
+6. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
    `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`. `GET /health` and `GET /capacity` report status, and
    `JHD_AUTH_TOKEN` protects the dashboard and the API.
-6. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
+7. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.

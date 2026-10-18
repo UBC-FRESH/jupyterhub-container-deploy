@@ -84,6 +84,16 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
 - Launched Phase 3 (deployment and packaging) from `main` at `955b5ff`, on `feature/p3-deployment`.
   Created the parent #20 and the tasks P3.1 (#21) and P3.2 (#22), linked as sub-issues. The roadmap
   records P2 as `complete` and P3 as `active`. P3.1 starts in a later move.
+- Queued Phase 3 for approval. Pull request #23 held `feature/p3-deployment` at `cb019e7`, with the
+  close-out report in `notes/reports/p3-closeout.md` (report commit `0f911de`). CI run 39165052183
+  was green in all three jobs on `cb019e7`, and run 39165150953 on the report commit.
+- The maintainer approved the report. Squash-merged PR #23 into `main` as `a5b7b76`, with a squash
+  tree equal to the approved report head `0f911de`; deleted the branch; and closed parent #20 with
+  a closeout comment that cites `a5b7b76`.
+- Launched Phase 4 (verify and release) from `main` at `a5b7b76`, on `feature/p4-release`. Created
+  the parent #24 and the tasks P4.1 (#25) and P4.2 (#26), linked as sub-issues. The roadmap records
+  P3 as `complete` and P4 as `active`. The `v0.1.0` tag is an approval-only action. P4.1 starts in a
+  later move.
 - Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
   `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
   requirements, installs the unit only when it changed, and enables the service only when it is
