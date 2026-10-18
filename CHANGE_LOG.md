@@ -75,3 +75,23 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   routes, the `JHD_AUTH_TOKEN` setting, and the threat boundaries (no TLS, no per-user identity,
   no host protection, and the leaked-token case). Linked it from the docs index and
   `docs/llms.txt`. All Phase 2 tasks are complete; the phase is ready for its close-out.
+- Queued Phase 2 for approval. Pull request #19 held `feature/p2-api-access` at `f7e7b9c`, with the
+  close-out report in `notes/reports/p2-closeout.md` (report commit `02d97b3`). CI run 39164249244
+  was green in all three jobs on `f7e7b9c`, and run 39164335897 on the report commit.
+- The maintainer approved the report. Squash-merged PR #19 into `main` as `955b5ff`, with a squash
+  tree equal to the approved report head `02d97b3`; deleted the branch; and closed parent #16 with
+  a closeout comment that cites `955b5ff`.
+- Launched Phase 3 (deployment and packaging) from `main` at `955b5ff`, on `feature/p3-deployment`.
+  Created the parent #20 and the tasks P3.1 (#21) and P3.2 (#22), linked as sub-issues. The roadmap
+  records P2 as `complete` and P3 as `active`. P3.1 starts in a later move.
+- Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
+  `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
+  requirements, installs the unit only when it changed, and enables the service only when it is
+  not enabled, so an upgrade never restarts a running service. Five tests run the script with fake
+  `python3` and `systemctl` commands and cover the dry-run plan, the apply, and the idempotent
+  re-run. Linked from the deployment guide. The dashboard is green.
+- Completed P3.2 (#22). Finalized `nginx/nginx.conf`: the service is published on a dedicated
+  hostname at the site root, which keeps the login redirect and the dashboard's relative URLs
+  correct, with the host, client, and scheme headers that `ProxyFix` reads, and read and send
+  timeouts. Documented the install steps in `docs/guides/deployment.rst`. All Phase 3 tasks are
+  complete; the phase is ready for its close-out.
