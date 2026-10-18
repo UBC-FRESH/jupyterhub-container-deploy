@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "JupyterHub Container Deploy"
+abstract: >-
+  A Flask service that manages JupyterHub LXD containers on the FRESH lab host:
+  it creates, starts, stops, archives, and restores hubs, and publishes each one
+  on a host port.
+type: software
+license: MIT
+authors:
+  - family-names: Paradis
+    given-names: Gregory
+    affiliation: UBC FRESH Lab
+repository-code: "https://github.com/UBC-FRESH/jupyterhub-container-deploy"
+keywords:
+  - jupyterhub
+  - lxd
+  - containers
+  - deployment
