@@ -7,8 +7,9 @@ from typing import Any
 
 import pytest
 
-from tests.fakes import FakeBackend, FakePylxdClient, make_fake_pylxd
+from tests.fakes import FailingBackend, FakeBackend, FakePylxdClient, make_fake_pylxd
 from web_service.lxd_utils import (
+    BackendError,
     ConflictError,
     Hub,
     HubManager,
@@ -319,3 +320,58 @@ def test_pylxd_backend_reuses_the_connection(monkeypatch: pytest.MonkeyPatch) ->
     first = backend._connection()
     assert backend._connection() is first
     assert first.endpoint == "/tmp/lxd.sock"
+
+
+def test_capacity_counts_used_and_free_slots() -> None:
+    """The capacity counts the live hubs against the slot total."""
+    backend = FakeBackend([Hub("jupyterhub01", "Running"), Hub("jupyterhub02", "Stopped")])
+    usage = make_manager(backend).capacity()
+    assert (usage.used, usage.free, usage.total) == (2, 48, 50)
+
+
+def test_health_reports_a_reachable_backend() -> None:
+    """A reachable backend is healthy, with the free slot count."""
+    status = make_manager(FakeBackend()).health()
+    assert status.healthy is True
+    assert status.free_slots == 50
+    assert status.total_slots == 50
+
+
+def test_health_reports_an_unreachable_backend() -> None:
+    """A failing backend is unhealthy, with zero free slots."""
+    status = make_manager(FailingBackend()).health()
+    assert status.healthy is False
+    assert status.free_slots == 0
+    assert status.total_slots == 50
+
+
+def _raise_runtime(*_args: object, **_kwargs: object) -> object:
+    """Raise a transport error, for the error-translation tests."""
+    raise RuntimeError("socket gone")
+
+
+def test_pylxd_backend_list_all_translates_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A transport error while listing becomes a ``BackendError``."""
+    monkeypatch.setitem(sys.modules, "pylxd", make_fake_pylxd())
+    backend = PylxdBackend()
+    monkeypatch.setattr(backend._connection().containers, "all", _raise_runtime)
+    with pytest.raises(BackendError):
+        backend.list_all()
+
+
+def test_pylxd_backend_get_translates_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A transport error while fetching becomes a ``BackendError``."""
+    monkeypatch.setitem(sys.modules, "pylxd", make_fake_pylxd())
+    backend = PylxdBackend()
+    monkeypatch.setattr(backend._connection().containers, "get", _raise_runtime)
+    with pytest.raises(BackendError):
+        backend.get("jupyterhub01")
+
+
+def test_pylxd_backend_write_translates_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A transport error during a write becomes a ``BackendError``."""
+    monkeypatch.setitem(sys.modules, "pylxd", make_fake_pylxd())
+    backend = PylxdBackend()
+    monkeypatch.setattr(backend._connection().containers, "get", _raise_runtime)
+    with pytest.raises(BackendError):
+        backend.start("jupyterhub01")

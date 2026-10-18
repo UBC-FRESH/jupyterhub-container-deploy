@@ -104,6 +104,24 @@ def create_blueprint() -> Blueprint:
         """Return the archived hubs."""
         return jsonify([_hub_payload(hub) for hub in _manager().list_archived()])
 
+    @blueprint.get("/health")
+    def health() -> tuple[Response, int]:
+        """Report whether the service and its LXD backend are healthy."""
+        status = _manager().health()
+        body = {
+            "status": "ok" if status.healthy else "unhealthy",
+            "backend": "reachable" if status.healthy else "unreachable",
+            "free_slots": status.free_slots,
+            "total_slots": status.total_slots,
+        }
+        return jsonify(body), 200 if status.healthy else 503
+
+    @blueprint.get("/capacity")
+    def capacity() -> Response:
+        """Report the deployment-slot usage."""
+        usage = _manager().capacity()
+        return jsonify({"used": usage.used, "free": usage.free, "total": usage.total})
+
     @blueprint.get("/check-archive-tag/<tag>")
     def check_archive_tag(tag: str) -> Response:
         """Report whether an archive tag is already in use."""

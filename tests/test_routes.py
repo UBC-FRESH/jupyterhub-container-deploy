@@ -5,7 +5,7 @@ from __future__ import annotations
 from flask import Flask
 from flask.testing import FlaskClient
 
-from tests.fakes import FakeBackend
+from tests.fakes import FailingBackend, FakeBackend
 from web_service import create_app
 from web_service.config import Settings
 from web_service.lxd_utils import Hub, HubManager
@@ -84,6 +84,30 @@ def test_config_hides_the_endpoint() -> None:
     payload = client_for(seed_backend()).get("/config").get_json()
     assert "lxd_endpoint" not in payload
     assert payload["max_deploy"] == 50
+
+
+def test_health_reports_ok_when_the_backend_answers() -> None:
+    """A reachable backend yields a 200 with the slot counts."""
+    response = client_for(seed_backend()).get("/health")
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["status"] == "ok"
+    assert body["backend"] == "reachable"
+    assert body["total_slots"] == 50
+
+
+def test_health_reports_503_when_the_backend_fails() -> None:
+    """An unreachable backend yields a 503 and an unhealthy status."""
+    response = client_for(FailingBackend()).get("/health")
+    assert response.status_code == 503
+    assert response.get_json()["status"] == "unhealthy"
+
+
+def test_capacity_reports_the_slot_usage() -> None:
+    """The capacity route reports the used, free, and total slots."""
+    response = client_for(seed_backend()).get("/capacity")
+    assert response.status_code == 200
+    assert response.get_json() == {"used": 2, "free": 48, "total": 50}
 
 
 def test_list_returns_live_hubs() -> None:

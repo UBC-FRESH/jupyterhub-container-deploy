@@ -32,3 +32,26 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   test client. The coverage gate is 95 percent branch coverage of `scripts/` and `web_service/`.
 - Dashboard result for this entry, from `python scripts/dashboard.py`: all gates green, with the
   framework and application tests passing and branch coverage at or above the gate.
+- Queued Phase 0 for approval (P0.9, #10). Pull request #11 held `feature/p0-bootstrap-scaffold`
+  at `bf5b14a`, with the close-out report in `notes/reports/p0-closeout.md` (report commit
+  `aa95946`). CI run 39162260138 was green in all three jobs on `bf5b14a`, and run 39162323911 on
+  the report commit. Nothing had merged.
+- The maintainer approved the report and the two settings changes. Executed the close-out in order:
+  enabled GitHub Pages with `build_type=workflow`; squash-merged PR #11 into `main` as `7f26293`,
+  with a squash tree equal to the approved head `aa95946`; deleted the branch; and protected
+  `main`, requiring `Quality gates`, `Green dashboard summary`, and `Pre-commit parity`, with force
+  pushes and deletions blocked.
+- Closed parent #1 with a closeout comment that cites `7f26293`.
+- Launched Phase 1 (capacity and operations) from `main` at `7f26293`, on
+  `feature/p1-capacity-operations`. Created the parent #12 and the tasks P1.1 (#13) and P1.2 (#14),
+  linked as sub-issues. The roadmap records P0 as `complete` and P1 as `active`. P1.1 starts in a
+  later move.
+- Started P1.1 (#13). Added `HubManager.capacity()` and `HubManager.health()`, and the
+  `GET /health` and `GET /capacity` routes. A transport error at the pylxd boundary is now
+  translated to a `BackendError`, so a failed read or write returns a JSON 502 instead of an HTML
+  500. New tests cover the helpers, both routes, and the error translation. The dashboard is green
+  with 219 tests and 99.74 percent branch coverage.
+- Completed P1.2 (#14). Wrote `docs/guides/operations.rst`: the routine create, stop, start,
+  archive, and restore tasks; the health and capacity checks; the full-capacity incident; and the
+  restart discipline. Linked it from the docs index and `docs/llms.txt`. All Phase 1 tasks are
+  complete; the phase is ready for its close-out.
