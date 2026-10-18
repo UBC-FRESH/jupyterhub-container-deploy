@@ -90,3 +90,8 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   not enabled, so an upgrade never restarts a running service. Five tests run the script with fake
   `python3` and `systemctl` commands and cover the dry-run plan, the apply, and the idempotent
   re-run. Linked from the deployment guide. The dashboard is green.
+- Completed P3.2 (#22). Finalized `nginx/nginx.conf`: the service is published on a dedicated
+  hostname at the site root, which keeps the login redirect and the dashboard's relative URLs
+  correct, with the host, client, and scheme headers that `ProxyFix` reads, and read and send
+  timeouts. Documented the install steps in `docs/guides/deployment.rst`. All Phase 3 tasks are
+  complete; the phase is ready for its close-out.

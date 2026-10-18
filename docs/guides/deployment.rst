@@ -44,9 +44,21 @@ The manual equivalent, if you prefer it:
 Reverse proxy
 -------------
 
-The service is mounted under a URL prefix by an nginx server. A starting point lives in
-``nginx/nginx.conf``: it proxies to ``127.0.0.1:5000`` and forwards the host and scheme headers
-that the application's ``ProxyFix`` middleware reads.
+``nginx/nginx.conf`` publishes the service on a dedicated hostname at the site root. Serving at
+the root keeps the login redirect and the dashboard's relative URLs correct; a path prefix would
+break them, because the application does not rewrite its URLs for a prefix.
+
+The block proxies to ``127.0.0.1:5000`` and forwards the host, client, and scheme headers that the
+application's ``ProxyFix`` middleware reads. Set ``server_name`` for the host, then install it:
+
+.. code-block:: bash
+
+   sudo cp nginx/nginx.conf /etc/nginx/sites-available/jupyterhub-container-deploy
+   sudo ln -sf /etc/nginx/sites-available/jupyterhub-container-deploy /etc/nginx/sites-enabled/
+   sudo nginx -t && sudo systemctl reload nginx
+
+The service sets an ``HttpOnly`` cookie for the dashboard, so add a TLS server block and serve it
+over HTTPS in production.
 
 Restart discipline
 ------------------

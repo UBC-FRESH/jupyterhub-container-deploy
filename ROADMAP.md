@@ -150,9 +150,9 @@ Goal: make the service reproducible on a fresh host: an idempotent install and u
   - [x] Write `scripts/install.sh` with `--dry-run` and `--apply`.
   - [x] Add a test for the dry-run plan and the idempotent re-run.
   - [x] Link the script from the deployment guide.
-- [ ] P3.2 Finish the nginx reverse proxy config (#22)
-  - [ ] Finalize `nginx/nginx.conf`.
-  - [ ] Document it in the deployment guide.
+- [x] P3.2 Finish the nginx reverse proxy config (#22)
+  - [x] Finalize `nginx/nginx.conf`.
+  - [x] Document it in the deployment guide.
 
 Acceptance criteria:
 
