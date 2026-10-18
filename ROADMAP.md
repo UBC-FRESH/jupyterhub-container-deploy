@@ -128,9 +128,9 @@ Goal: secure the service: authentication for the dashboard and the API, and an a
   - [x] Record the access-model decision as an ADR.
   - [x] Add the setting and the `before_request` check.
   - [x] Add tests for the 401 and the open health probe.
-- [ ] P2.2 Document the access model and its threat boundaries (#18)
-  - [ ] Write `docs/guides/access.rst`.
-  - [ ] Link it from `docs/index.rst` and `docs/llms.txt`.
+- [x] P2.2 Document the access model and its threat boundaries (#18)
+  - [x] Write `docs/guides/access.rst`.
+  - [x] Link it from `docs/index.rst` and `docs/llms.txt`.
 
 Acceptance criteria:
 

@@ -71,3 +71,7 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   `HttpOnly`, `SameSite=Lax` cookie, and `/logout` clears it. An empty token disables
   authentication for local development. The comparison uses `secrets.compare_digest`. The decision
   is ADR 0003. The dashboard is green with 230 tests and 99.50 percent branch coverage.
+- Completed P2.2 (#18). Wrote `docs/guides/access.rst`: how to sign in, the protected and open
+  routes, the `JHD_AUTH_TOKEN` setting, and the threat boundaries (no TLS, no per-user identity,
+  no host protection, and the leaked-token case). Linked it from the docs index and
+  `docs/llms.txt`. All Phase 2 tasks are complete; the phase is ready for its close-out.
