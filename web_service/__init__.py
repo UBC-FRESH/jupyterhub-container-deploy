@@ -12,6 +12,7 @@ from flask import Flask
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from .auth import install_auth
 from .config import Settings
 from .lxd_utils import HubManager, PylxdBackend
 from .routes import create_blueprint, register_error_handlers
@@ -70,4 +71,5 @@ def create_app(
     CORS(app)
     app.register_blueprint(create_blueprint())
     register_error_handlers(app)
+    install_auth(app, resolved.auth_token)
     return app

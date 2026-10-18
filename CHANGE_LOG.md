@@ -55,3 +55,23 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   archive, and restore tasks; the health and capacity checks; the full-capacity incident; and the
   restart discipline. Linked it from the docs index and `docs/llms.txt`. All Phase 1 tasks are
   complete; the phase is ready for its close-out.
+- Queued Phase 1 for approval. Pull request #15 held `feature/p1-capacity-operations` at
+  `3caafb4`, with the close-out report in `notes/reports/p1-closeout.md` (report commit `f1a2e94`).
+  CI run 39163695576 was green in all three jobs on `3caafb4`, and run 39163780752 on the report
+  commit. Nothing had merged.
+- The maintainer approved the report. Squash-merged PR #15 into `main` as `c9407ca`, with a squash
+  tree equal to the approved report head `f1a2e94`; deleted the branch; and closed parent #12 with
+  a closeout comment that cites `c9407ca`.
+- Launched Phase 2 (API and access control) from `main` at `c9407ca`, on `feature/p2-api-access`.
+  Created the parent #16 and the tasks P2.1 (#17) and P2.2 (#18), linked as sub-issues. The
+  roadmap records P1 as `complete` and P2 as `active`. P2.1 starts in a later move.
+- Started P2.1 (#17). Added shared-token authentication. `JHD_AUTH_TOKEN` protects every route
+  except the open list (`/health`, `/login`, `/logout`). API clients use
+  `Authorization: Bearer <token>`; the dashboard signs in once at `/login`, which sets an
+  `HttpOnly`, `SameSite=Lax` cookie, and `/logout` clears it. An empty token disables
+  authentication for local development. The comparison uses `secrets.compare_digest`. The decision
+  is ADR 0003. The dashboard is green with 230 tests and 99.50 percent branch coverage.
+- Completed P2.2 (#18). Wrote `docs/guides/access.rst`: how to sign in, the protected and open
+  routes, the `JHD_AUTH_TOKEN` setting, and the threat boundaries (no TLS, no per-user identity,
+  no host protection, and the leaked-token case). Linked it from the docs index and
+  `docs/llms.txt`. All Phase 2 tasks are complete; the phase is ready for its close-out.

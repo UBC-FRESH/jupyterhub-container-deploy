@@ -17,6 +17,7 @@ and cite it in their reports. Start with the repository's ``AGENTS.md`` and ``RO
    guides/configuration
    guides/deployment
    guides/operations
+   guides/access
 
 .. toctree::
    :maxdepth: 2

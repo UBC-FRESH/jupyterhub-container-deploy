@@ -100,6 +100,9 @@ class Settings:
         Whether Flask runs in debug mode.
     lxd_endpoint : str
         LXD socket endpoint. Empty selects the pylxd default.
+    auth_token : str
+        Shared token that protects the dashboard and the API. Empty disables authentication,
+        which is intended for local development only.
     """
 
     application_root: str = DEFAULT_APPLICATION_ROOT
@@ -111,6 +114,7 @@ class Settings:
     archive_prefix: str = DEFAULT_ARCHIVE_PREFIX
     debug: bool = False
     lxd_endpoint: str = ""
+    auth_token: str = ""
 
     @classmethod
     def from_env(cls, env: str | None = None) -> Settings:
@@ -156,6 +160,7 @@ class Settings:
             archive_prefix=_read_str("ARCHIVE_PREFIX", DEFAULT_ARCHIVE_PREFIX),
             debug=debug,
             lxd_endpoint=_read_str("LXD_ENDPOINT", ""),
+            auth_token=_read_str("AUTH_TOKEN", ""),
         )
 
     def public_dict(self) -> dict[str, object]:
@@ -166,10 +171,11 @@ class Settings:
         Returns
         -------
         dict of str to object
-            Field name to value, for every setting except ``lxd_endpoint``.
+            Field name to value, for every setting except the secret ones.
         """
+        hidden = {"lxd_endpoint", "auth_token"}
         return {
             field.name: getattr(self, field.name)
             for field in fields(self)
-            if field.name != "lxd_endpoint"
+            if field.name not in hidden
         }

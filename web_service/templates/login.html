@@ -1,0 +1,22 @@
+<!-- Login form for the shared-token authentication. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JupyterHub Deployment Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5" style="max-width: 30rem;">
+        <h1 class="mb-4">JupyterHub Deployment</h1>
+        <form method="post" action="login">
+            <div class="mb-3">
+                <label for="token" class="form-label">Access token</label>
+                <input type="password" class="form-control" id="token" name="token" autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -14,6 +14,7 @@
 - [Configuration](guides/configuration.html): every environment variable and its default.
 - [Deployment](guides/deployment.html): the systemd unit, gunicorn, and the nginx reverse proxy.
 - [Operations runbook](guides/operations.html): routine tasks, monitoring, and the full-capacity incident.
+- [Access model](guides/access.html): the shared token, the protected and open routes, and the threat boundaries.
 
 ## Reference
 
