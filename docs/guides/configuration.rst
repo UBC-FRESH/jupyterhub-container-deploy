@@ -39,6 +39,10 @@ Settings
    * - ``JHD_LXD_ENDPOINT``
      - (empty)
      - LXD socket endpoint. Empty selects the ``pylxd`` default.
+   * - ``JHD_AUTH_TOKEN``
+     - (empty)
+     - Shared token for the dashboard and the API. Empty disables authentication, for local
+       development only; set it in production.
    * - ``JHD_ENV``
      - (empty)
      - ``development`` or ``dev`` enables debug mode. ``FLASK_ENV`` is a fallback.

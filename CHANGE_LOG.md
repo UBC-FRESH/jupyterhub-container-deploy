@@ -65,3 +65,9 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
 - Launched Phase 2 (API and access control) from `main` at `c9407ca`, on `feature/p2-api-access`.
   Created the parent #16 and the tasks P2.1 (#17) and P2.2 (#18), linked as sub-issues. The
   roadmap records P1 as `complete` and P2 as `active`. P2.1 starts in a later move.
+- Started P2.1 (#17). Added shared-token authentication. `JHD_AUTH_TOKEN` protects every route
+  except the open list (`/health`, `/login`, `/logout`). API clients use
+  `Authorization: Bearer <token>`; the dashboard signs in once at `/login`, which sets an
+  `HttpOnly`, `SameSite=Lax` cookie, and `/logout` clears it. An empty token disables
+  authentication for local development. The comparison uses `secrets.compare_digest`. The decision
+  is ADR 0003. The dashboard is green with 230 tests and 99.50 percent branch coverage.
