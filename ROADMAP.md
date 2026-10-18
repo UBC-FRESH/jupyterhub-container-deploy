@@ -11,8 +11,8 @@ keep their format.
 | --- | --- | --- | --- |
 | P0 Bootstrap and hardening | #1 | `feature/p0-bootstrap-scaffold` | complete |
 | P1 Capacity and operations | #12 | `feature/p1-capacity-operations` | complete |
-| P2 API and access control | #16 | `feature/p2-api-access` | active |
-| P3 Deployment and packaging | TBD | `feature/p3-deployment` | planned |
+| P2 API and access control | #16 | `feature/p2-api-access` | complete |
+| P3 Deployment and packaging | #20 | `feature/p3-deployment` | active |
 | P4 Verify and release | TBD | `feature/p4-release` | planned |
 | P5 Operate and maintain | TBD | `feature/p5-operate` | planned |
 
@@ -120,7 +120,7 @@ Acceptance criteria:
 
 Parent issue: #16
 Branch: `feature/p2-api-access`
-Status: active
+Status: complete
 
 Goal: secure the service: authentication for the dashboard and the API, and an access model that names its threat boundaries.
 
@@ -140,18 +140,24 @@ Acceptance criteria:
 
 ## Phase 3: Deployment and packaging
 
-Parent issue: TBD
+Parent issue: #20
 Branch: `feature/p3-deployment`
-Status: planned
+Status: active
 
-Goal: make the service reproducible on a fresh host: a pinned environment, the systemd unit, the nginx config, and an install script.
+Goal: make the service reproducible on a fresh host: an idempotent install and upgrade script, and a finished nginx reverse proxy configuration.
 
-- [ ] P3.1 Add an idempotent install and upgrade script
-- [ ] P3.2 Finish the nginx reverse proxy config and document it
+- [ ] P3.1 Idempotent install and upgrade script (#21)
+  - [ ] Write `scripts/install.sh` with `--dry-run` and `--apply`.
+  - [ ] Add a test for the dry-run plan and the idempotent re-run.
+  - [ ] Link the script from the deployment guide.
+- [ ] P3.2 Finish the nginx reverse proxy config (#22)
+  - [ ] Finalize `nginx/nginx.conf`.
+  - [ ] Document it in the deployment guide.
 
 Acceptance criteria:
 
-- <State the criterion that shows this phase met its goal.>
+- A fresh host can be provisioned with one documented command, and a re-run changes nothing.
+- The nginx config proxies the service under a prefix and passes the headers that `ProxyFix` reads.
 
 ## Phase 4: Verify and release
 
@@ -190,8 +196,12 @@ Acceptance criteria:
 2. Phase 1 is complete. Pull request #15 squash-merged into `main` as `c9407ca`; the squash tree
    equals the approved report head `f1a2e94`. #12 is closed. Its tasks were P1.1 and P1.2 on #13
    and #14.
-3. Phase 2 is active. Its parent is #16, and its tasks are P2.1 and P2.2 on #17 and #18, linked as
-   sub-issues. The branch is `feature/p2-api-access`, branched from `c9407ca`.
-4. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
-   `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`. `GET /health` and `GET /capacity` report status.
-5. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
+3. Phase 2 is complete. Pull request #19 squash-merged into `main` as `955b5ff`; the squash tree
+   equals the approved report head `02d97b3`. #16 is closed. Its tasks were P2.1 and P2.2 on #17
+   and #18.
+4. Phase 3 is active. Its parent is #20, and its tasks are P3.1 and P3.2 on #21 and #22, linked as
+   sub-issues. The branch is `feature/p3-deployment`, branched from `955b5ff`.
+5. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
+   `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`. `GET /health` and `GET /capacity` report status, and
+   `JHD_AUTH_TOKEN` protects the dashboard and the API.
+6. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
