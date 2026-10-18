@@ -94,6 +94,11 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   the parent #24 and the tasks P4.1 (#25) and P4.2 (#26), linked as sub-issues. The roadmap records
   P3 as `complete` and P4 as `active`. The `v0.1.0` tag is an approval-only action. P4.1 starts in a
   later move.
+- Completed P4.1 (#25). Cloned `main` at `a5b7b76` into a fresh directory and ran the acceptance
+  checks there: the dashboard is green in all six gates, the validator reports 0 errors and 0
+  warnings, the suite passes 235 tests at 99.50 percent branch coverage, and the install dry run
+  prints its plan and changes nothing. The evidence and the stated limits are in
+  `notes/reference/acceptance.md`. The rehearsal ran on the lab host, not a fresh physical machine.
 - Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
   `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
   requirements, installs the unit only when it changed, and enables the service only when it is
