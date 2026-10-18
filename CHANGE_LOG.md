@@ -99,6 +99,11 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   warnings, the suite passes 235 tests at 99.50 percent branch coverage, and the install dry run
   prints its plan and changes nothing. The evidence and the stated limits are in
   `notes/reference/acceptance.md`. The rehearsal ran on the lab host, not a fresh physical machine.
+- Completed P4.2 (#26). Wrote `notes/releases/v0.1.0.md`: the changes of P0 to P3, the verification,
+  and the known gaps. Set `version: 0.1.0` and `date-released: 2026-10-18` in `CITATION.cff`. The
+  `v0.1.0` tag and the GitHub release are queued in `notes/reports/p4-closeout.md` with their exact
+  commands, and wait for the maintainer's approval. All Phase 4 tasks are complete; the phase is
+  ready for its close-out.
 - Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
   `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
   requirements, installs the unit only when it changed, and enables the service only when it is

@@ -171,10 +171,10 @@ Goal: verify the acceptance criteria end to end and cut the first tagged release
   - [x] Clone `main` into a temporary directory and run the dashboard.
   - [x] Run the validator and the install dry run in the clone.
   - [x] Record the evidence in `notes/reference/acceptance.md`.
-- [ ] P4.2 Release notes and the v0.1.0 tag (#26)
-  - [ ] Write `notes/releases/v0.1.0.md`.
-  - [ ] Set the version in `CITATION.cff`.
-  - [ ] Queue the tag and release commands in the close-out report.
+- [x] P4.2 Release notes and the v0.1.0 tag (#26)
+  - [x] Write `notes/releases/v0.1.0.md`.
+  - [x] Set the version in `CITATION.cff`.
+  - [x] Queue the tag and release commands in the close-out report.
 
 Acceptance criteria:
 

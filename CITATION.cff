@@ -1,6 +1,8 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "JupyterHub Container Deploy"
+version: "0.1.0"
+date-released: "2026-10-18"
 abstract: >-
   A Flask service that manages JupyterHub LXD containers on the FRESH lab host:
   it creates, starts, stops, archives, and restores hubs, and publishes each one
