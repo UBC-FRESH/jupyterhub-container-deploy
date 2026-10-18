@@ -9,8 +9,8 @@ keep their format.
 
 | Phase | Parent issue | Branch | Status |
 | --- | --- | --- | --- |
-| P0 Bootstrap and hardening | #1 | `feature/p0-bootstrap-scaffold` | active |
-| P1 Capacity and operations | TBD | `feature/p1-capacity-operations` | planned |
+| P0 Bootstrap and hardening | #1 | `feature/p0-bootstrap-scaffold` | complete |
+| P1 Capacity and operations | #12 | `feature/p1-capacity-operations` | active |
 | P2 API and access control | TBD | `feature/p2-api-access` | planned |
 | P3 Deployment and packaging | TBD | `feature/p3-deployment` | planned |
 | P4 Verify and release | TBD | `feature/p4-release` | planned |
@@ -39,7 +39,7 @@ keep their format.
 
 Parent issue: #1
 Branch: `feature/p0-bootstrap-scaffold`
-Status: active
+Status: complete
 
 Goal: adopt the UBC-FRESH dev workflow in this repository and bring the existing JupyterHub container deployment service up to its quality bar: typed, tested, documented, and able to manage fifty containers.
 
@@ -78,10 +78,10 @@ Goal: adopt the UBC-FRESH dev workflow in this repository and bring the existing
   - [x] Tests for `HubManager` over an in-memory backend.
   - [x] Tests for `PylxdBackend` over a fake `pylxd` module.
   - [x] API tests through the Flask test client.
-- [ ] P0.9 Phase close-out and review handoff (#10)
-  - [ ] Open the phase pull request with `Part of #1`.
-  - [ ] Write `notes/reports/p0-closeout.md` with the gate and CI evidence.
-  - [ ] Post the progress and closeout comments on the child issues.
+- [x] P0.9 Phase close-out and review handoff (#10)
+  - [x] Open the phase pull request with `Part of #1`.
+  - [x] Write `notes/reports/p0-closeout.md` with the gate and CI evidence.
+  - [x] Post the progress and closeout comments on the child issues.
 
 Acceptance criteria:
 
@@ -97,18 +97,24 @@ Phase 0 verification:
 
 ## Phase 1: Capacity and operations
 
-Parent issue: TBD
+Parent issue: #12
 Branch: `feature/p1-capacity-operations`
-Status: planned
+Status: active
 
 Goal: make the fifty-container deployment easy to operate: health checks, a capacity report, and an operational runbook.
 
-- [ ] P1.1 Add a health endpoint and a capacity report
-- [ ] P1.2 Write the operations runbook in `docs/guides/`
+- [ ] P1.1 Health endpoint and capacity report (#13)
+  - [ ] Add `HubManager.capacity()`.
+  - [ ] Add `GET /health` and `GET /capacity`.
+  - [ ] Add tests for the helper and both routes.
+- [ ] P1.2 Operations runbook (#14)
+  - [ ] Write `docs/guides/operations.rst`.
+  - [ ] Link it from `docs/index.rst` and `docs/llms.txt`.
 
 Acceptance criteria:
 
-- <State the criterion that shows this phase met its goal.>
+- A health endpoint reports the LXD backend and the free slots.
+- The runbook covers start, stop, archive, restore, and a full-capacity incident.
 
 ## Phase 2: API and access control
 
@@ -171,8 +177,11 @@ Acceptance criteria:
 
 ## Detailed Next Steps Notes
 
-1. Phase 0 is active. Its parent is #1, and its tasks are P0.1 to P0.9 on #2 to #10. The
-   branch is `feature/p0-bootstrap-scaffold`.
-2. The service now manages up to 50 containers, on host ports 8101 to 8150, configurable
-   through `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`.
-3. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
+1. Phase 0 is complete. Pull request #11 squash-merged into `main` as `7f26293`; the squash tree
+   equals the approved head `aa95946`. #1 is closed. Its tasks were P0.1 to P0.9 on #2 to #10.
+   GitHub Pages is enabled, and `main` requires the three CI checks.
+2. Phase 1 is active. Its parent is #12, and its tasks are P1.1 and P1.2 on #13 and #14, linked as
+   sub-issues. The branch is `feature/p1-capacity-operations`, branched from `7f26293`.
+3. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
+   `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`.
+4. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
