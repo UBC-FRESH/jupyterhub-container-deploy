@@ -10,8 +10,8 @@ keep their format.
 | Phase | Parent issue | Branch | Status |
 | --- | --- | --- | --- |
 | P0 Bootstrap and hardening | #1 | `feature/p0-bootstrap-scaffold` | complete |
-| P1 Capacity and operations | #12 | `feature/p1-capacity-operations` | active |
-| P2 API and access control | TBD | `feature/p2-api-access` | planned |
+| P1 Capacity and operations | #12 | `feature/p1-capacity-operations` | complete |
+| P2 API and access control | #16 | `feature/p2-api-access` | active |
 | P3 Deployment and packaging | TBD | `feature/p3-deployment` | planned |
 | P4 Verify and release | TBD | `feature/p4-release` | planned |
 | P5 Operate and maintain | TBD | `feature/p5-operate` | planned |
@@ -99,7 +99,7 @@ Phase 0 verification:
 
 Parent issue: #12
 Branch: `feature/p1-capacity-operations`
-Status: active
+Status: complete
 
 Goal: make the fifty-container deployment easy to operate: health checks, a capacity report, and an operational runbook.
 
@@ -118,18 +118,25 @@ Acceptance criteria:
 
 ## Phase 2: API and access control
 
-Parent issue: TBD
+Parent issue: #16
 Branch: `feature/p2-api-access`
-Status: planned
+Status: active
 
-Goal: secure the service: authentication for the dashboard and the API, and per-user scoping where it is needed.
+Goal: secure the service: authentication for the dashboard and the API, and an access model that names its threat boundaries.
 
-- [ ] P2.1 Add authentication in front of the dashboard and the API
-- [ ] P2.2 Document the access model and its threat boundaries
+- [ ] P2.1 Authentication in front of the dashboard and the API (#17)
+  - [ ] Record the access-model decision as an ADR.
+  - [ ] Add the setting and the `before_request` check.
+  - [ ] Add tests for the 401 and the open health probe.
+- [ ] P2.2 Document the access model and its threat boundaries (#18)
+  - [ ] Write `docs/guides/access.rst`.
+  - [ ] Link it from `docs/index.rst` and `docs/llms.txt`.
 
 Acceptance criteria:
 
-- <State the criterion that shows this phase met its goal.>
+- Unauthenticated requests to the dashboard and the API are rejected with 401.
+- The health probe stays reachable without a credential.
+- The access model page names what is protected and what is not.
 
 ## Phase 3: Deployment and packaging
 
@@ -180,8 +187,11 @@ Acceptance criteria:
 1. Phase 0 is complete. Pull request #11 squash-merged into `main` as `7f26293`; the squash tree
    equals the approved head `aa95946`. #1 is closed. Its tasks were P0.1 to P0.9 on #2 to #10.
    GitHub Pages is enabled, and `main` requires the three CI checks.
-2. Phase 1 is active. Its parent is #12, and its tasks are P1.1 and P1.2 on #13 and #14, linked as
-   sub-issues. The branch is `feature/p1-capacity-operations`, branched from `7f26293`.
-3. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
-   `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`.
-4. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
+2. Phase 1 is complete. Pull request #15 squash-merged into `main` as `c9407ca`; the squash tree
+   equals the approved report head `f1a2e94`. #12 is closed. Its tasks were P1.1 and P1.2 on #13
+   and #14.
+3. Phase 2 is active. Its parent is #16, and its tasks are P2.1 and P2.2 on #17 and #18, linked as
+   sub-issues. The branch is `feature/p2-api-access`, branched from `c9407ca`.
+4. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
+   `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`. `GET /health` and `GET /capacity` report status.
+5. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.

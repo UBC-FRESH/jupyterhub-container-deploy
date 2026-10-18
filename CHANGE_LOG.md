@@ -55,3 +55,13 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   archive, and restore tasks; the health and capacity checks; the full-capacity incident; and the
   restart discipline. Linked it from the docs index and `docs/llms.txt`. All Phase 1 tasks are
   complete; the phase is ready for its close-out.
+- Queued Phase 1 for approval. Pull request #15 held `feature/p1-capacity-operations` at
+  `3caafb4`, with the close-out report in `notes/reports/p1-closeout.md` (report commit `f1a2e94`).
+  CI run 39163695576 was green in all three jobs on `3caafb4`, and run 39163780752 on the report
+  commit. Nothing had merged.
+- The maintainer approved the report. Squash-merged PR #15 into `main` as `c9407ca`, with a squash
+  tree equal to the approved report head `f1a2e94`; deleted the branch; and closed parent #12 with
+  a closeout comment that cites `c9407ca`.
+- Launched Phase 2 (API and access control) from `main` at `c9407ca`, on `feature/p2-api-access`.
+  Created the parent #16 and the tasks P2.1 (#17) and P2.2 (#18), linked as sub-issues. The
+  roadmap records P1 as `complete` and P2 as `active`. P2.1 starts in a later move.
