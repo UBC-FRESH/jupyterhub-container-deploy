@@ -1,0 +1,25 @@
+# JupyterHub Container Deploy
+
+> Agent-facing index for the JupyterHub container deployment service. Read the linked pages before you change the project.
+
+## Start here
+
+- [Home](index.html): the documentation home for the service.
+- [Session protocol](agents/session-protocol.html): the steps to follow at the start of every session.
+
+## Guides
+
+- [Install](guides/install.html): prerequisites, the checkout, the virtual environment, and the first run.
+- [Usage](guides/usage.html): the HTTP API, the container lifecycle, and the dashboard.
+- [Configuration](guides/configuration.html): every environment variable and its default.
+- [Deployment](guides/deployment.html): the systemd unit, gunicorn, and the nginx reverse proxy.
+
+## Reference
+
+- [Architecture](reference/architecture.html): the layers, the naming scheme, and the error model.
+
+## API
+
+- [API reference](api/index.html): every public function in the framework scripts, with its types.
+- [check_workflow](api/check-workflow.html): the workflow validator and its finding codes.
+- [dashboard](api/dashboard.html): the green dashboard, its gates, and its exit status.
