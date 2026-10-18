@@ -16,8 +16,11 @@ is tested against an in-memory backend, with no LXD daemon and no container chur
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any, Protocol, TypeVar
+
+T = TypeVar("T")
 
 TAG_RE: re.Pattern[str] = re.compile(r"^[a-z0-9][a-z0-9._-]{0,62}$")
 CONTROL_RE: re.Pattern[str] = re.compile(r"[\x00-\x1f\x7f]")
@@ -107,6 +110,44 @@ class Hub:
             ``True`` when the status is ``stopped``, ignoring case.
         """
         return self.status.lower() == "stopped"
+
+
+@dataclass(frozen=True)
+class Capacity:
+    """The deployment-slot usage.
+
+    Attributes
+    ----------
+    used : int
+        Number of live hubs.
+    free : int
+        Number of free slots.
+    total : int
+        Total number of slots.
+    """
+
+    used: int
+    free: int
+    total: int
+
+
+@dataclass(frozen=True)
+class Health:
+    """The health of the service and its backend.
+
+    Attributes
+    ----------
+    healthy : bool
+        ``True`` when the backend answered.
+    free_slots : int
+        Free slots, or ``0`` when the backend did not answer.
+    total_slots : int
+        Total slots.
+    """
+
+    healthy: bool
+    free_slots: int
+    total_slots: int
 
 
 def hub_name(prefix: str, slot: int) -> str:
@@ -359,6 +400,35 @@ class PylxdBackend:
         description = container.config.get(DESCRIPTION_KEY, NO_DESCRIPTION)
         return Hub(name=container.name, status=container.status, description=description)
 
+    def _guard(self, action: Callable[[], T], description: str) -> T:
+        """Run a backend action, translating an unexpected error into a ``BackendError``.
+
+        Parameters
+        ----------
+        action : Callable[[], T]
+            The backend call to run.
+        description : str
+            Short description used in the error message.
+
+        Returns
+        -------
+        T
+            The action's result.
+
+        Raises
+        ------
+        HubError
+            Re-raised unchanged when the action already raised one.
+        BackendError
+            When the action raised any other exception.
+        """
+        try:
+            return action()
+        except HubError:
+            raise
+        except Exception as exc:  # pylxd raises a family of transport errors
+            raise BackendError(f"{description}: {exc}") from exc
+
     def list_all(self) -> list[Hub]:
         """List every container on the LXD server.
 
@@ -367,7 +437,8 @@ class PylxdBackend:
         list of Hub
             The containers, converted from ``pylxd`` objects.
         """
-        return [self._to_hub(container) for container in self._connection().containers.all()]
+        containers = self._guard(lambda: self._connection().containers.all(), "list containers")
+        return [self._to_hub(container) for container in containers]
 
     def get(self, name: str) -> Hub:
         """Return one container by name.
@@ -386,6 +457,8 @@ class PylxdBackend:
         ------
         NotFoundError
             When no container has that name.
+        BackendError
+            When the backend fails for another reason.
         """
         import pylxd
 
@@ -393,6 +466,8 @@ class PylxdBackend:
             container = self._connection().containers.get(name)
         except pylxd.exceptions.NotFound as exc:
             raise NotFoundError(f"container {name} not found") from exc
+        except Exception as exc:  # pylxd raises a family of transport errors
+            raise BackendError(f"get container {name}: {exc}") from exc
         return self._to_hub(container)
 
     def create(
@@ -419,15 +494,19 @@ class PylxdBackend:
         container_port : int
             Container port to forward.
         """
-        client = self._connection()
-        config = {
-            "name": name,
-            "source": {"type": "copy", "source": template},
-            "config": {DESCRIPTION_KEY: description},
-        }
-        container = client.instances.create(config, wait=True)
-        container.start(wait=True)
-        self._apply_proxy(container, host_port=host_port, container_port=container_port)
+
+        def action() -> None:
+            client = self._connection()
+            config = {
+                "name": name,
+                "source": {"type": "copy", "source": template},
+                "config": {DESCRIPTION_KEY: description},
+            }
+            container = client.instances.create(config, wait=True)
+            container.start(wait=True)
+            self._apply_proxy(container, host_port=host_port, container_port=container_port)
+
+        self._guard(action, f"create container {name}")
 
     def start(self, name: str) -> None:
         """Start a container.
@@ -437,7 +516,9 @@ class PylxdBackend:
         name : str
             Container name.
         """
-        self._connection().containers.get(name).start(wait=True)
+        self._guard(
+            lambda: self._connection().containers.get(name).start(wait=True), f"start {name}"
+        )
 
     def stop(self, name: str) -> None:
         """Stop a container.
@@ -447,7 +528,7 @@ class PylxdBackend:
         name : str
             Container name.
         """
-        self._connection().containers.get(name).stop(wait=True)
+        self._guard(lambda: self._connection().containers.get(name).stop(wait=True), f"stop {name}")
 
     def rename(self, name: str, new_name: str) -> None:
         """Rename a container.
@@ -459,7 +540,10 @@ class PylxdBackend:
         new_name : str
             New container name.
         """
-        self._connection().containers.get(name).rename(new_name, wait=True)
+        self._guard(
+            lambda: self._connection().containers.get(name).rename(new_name, wait=True),
+            f"rename {name} to {new_name}",
+        )
 
     def add_proxy(self, name: str, *, host_port: int, container_port: int) -> None:
         """Add a proxy device to a container.
@@ -473,8 +557,12 @@ class PylxdBackend:
         container_port : int
             Container port to forward.
         """
-        container = self._connection().containers.get(name)
-        self._apply_proxy(container, host_port=host_port, container_port=container_port)
+
+        def action() -> None:
+            container = self._connection().containers.get(name)
+            self._apply_proxy(container, host_port=host_port, container_port=container_port)
+
+        self._guard(action, f"add proxy to {name}")
 
     @staticmethod
     def _apply_proxy(container: Any, *, host_port: int, container_port: int) -> None:
@@ -586,6 +674,31 @@ class HubManager:
             hub for hub in self.backend.list_all() if hub.name.startswith(prefix) and hub.stopped
         ]
         return sorted(archived, key=lambda hub: hub.name)
+
+    def capacity(self) -> Capacity:
+        """Report the deployment-slot usage.
+
+        Returns
+        -------
+        Capacity
+            The used, free, and total slot counts.
+        """
+        used = len(self.list_hubs())
+        return Capacity(used=used, free=self.max_deploy - used, total=self.max_deploy)
+
+    def health(self) -> Health:
+        """Report whether the backend answers, with the free slot count.
+
+        Returns
+        -------
+        Health
+            ``healthy`` is ``False`` when the backend raises a :class:`HubError`.
+        """
+        try:
+            free = self.capacity().free
+        except HubError:
+            return Health(healthy=False, free_slots=0, total_slots=self.max_deploy)
+        return Health(healthy=True, free_slots=free, total_slots=self.max_deploy)
 
     def archive_tag_exists(self, tag: str) -> bool:
         """Report whether an archive tag is already in use.

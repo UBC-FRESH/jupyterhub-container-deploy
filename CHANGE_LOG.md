@@ -46,3 +46,8 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   `feature/p1-capacity-operations`. Created the parent #12 and the tasks P1.1 (#13) and P1.2 (#14),
   linked as sub-issues. The roadmap records P0 as `complete` and P1 as `active`. P1.1 starts in a
   later move.
+- Started P1.1 (#13). Added `HubManager.capacity()` and `HubManager.health()`, and the
+  `GET /health` and `GET /capacity` routes. A transport error at the pylxd boundary is now
+  translated to a `BackendError`, so a failed read or write returns a JSON 502 instead of an HTML
+  500. New tests cover the helpers, both routes, and the error translation. The dashboard is green
+  with 219 tests and 99.74 percent branch coverage.

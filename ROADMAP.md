@@ -103,10 +103,10 @@ Status: active
 
 Goal: make the fifty-container deployment easy to operate: health checks, a capacity report, and an operational runbook.
 
-- [ ] P1.1 Health endpoint and capacity report (#13)
-  - [ ] Add `HubManager.capacity()`.
-  - [ ] Add `GET /health` and `GET /capacity`.
-  - [ ] Add tests for the helper and both routes.
+- [x] P1.1 Health endpoint and capacity report (#13)
+  - [x] Add `HubManager.capacity()`.
+  - [x] Add `GET /health` and `GET /capacity`.
+  - [x] Add tests for the helper and both routes.
 - [ ] P1.2 Operations runbook (#14)
   - [ ] Write `docs/guides/operations.rst`.
   - [ ] Link it from `docs/index.rst` and `docs/llms.txt`.

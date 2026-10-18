@@ -11,7 +11,7 @@ from __future__ import annotations
 import types
 from typing import Any
 
-from web_service.lxd_utils import DESCRIPTION_KEY, Hub, NotFoundError
+from web_service.lxd_utils import DESCRIPTION_KEY, BackendError, Hub, NotFoundError
 
 
 class FakeBackend:
@@ -179,6 +179,25 @@ class FakeBackend:
         """
         hub = self.hubs[name]
         self.hubs[name] = Hub(hub.name, status, hub.description)
+
+
+class FailingBackend(FakeBackend):
+    """A backend whose reads always fail, for the health checks."""
+
+    def list_all(self) -> list[Hub]:
+        """Raise a backend error.
+
+        Returns
+        -------
+        list of Hub
+            Never returns.
+
+        Raises
+        ------
+        BackendError
+            Always, to stand in for an unreachable LXD daemon.
+        """
+        raise BackendError("backend unreachable")
 
 
 class FakePylxdContainer:

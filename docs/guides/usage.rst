@@ -30,6 +30,10 @@ HTTP API
      - The number of deployment slots.
    * - ``GET /config``
      - The public settings, without the LXD endpoint.
+   * - ``GET /health``
+     - Service and LXD backend health, with the free slot count.
+   * - ``GET /capacity``
+     - The used, free, and total deployment slots.
    * - ``GET /list``
      - The live hubs, in slot order.
    * - ``GET /list-archived``
