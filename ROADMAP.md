@@ -146,10 +146,10 @@ Status: active
 
 Goal: make the service reproducible on a fresh host: an idempotent install and upgrade script, and a finished nginx reverse proxy configuration.
 
-- [ ] P3.1 Idempotent install and upgrade script (#21)
-  - [ ] Write `scripts/install.sh` with `--dry-run` and `--apply`.
-  - [ ] Add a test for the dry-run plan and the idempotent re-run.
-  - [ ] Link the script from the deployment guide.
+- [x] P3.1 Idempotent install and upgrade script (#21)
+  - [x] Write `scripts/install.sh` with `--dry-run` and `--apply`.
+  - [x] Add a test for the dry-run plan and the idempotent re-run.
+  - [x] Link the script from the deployment guide.
 - [ ] P3.2 Finish the nginx reverse proxy config (#22)
   - [ ] Finalize `nginx/nginx.conf`.
   - [ ] Document it in the deployment guide.

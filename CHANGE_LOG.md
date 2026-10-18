@@ -84,3 +84,9 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
 - Launched Phase 3 (deployment and packaging) from `main` at `955b5ff`, on `feature/p3-deployment`.
   Created the parent #20 and the tasks P3.1 (#21) and P3.2 (#22), linked as sub-issues. The roadmap
   records P2 as `complete` and P3 as `active`. P3.1 starts in a later move.
+- Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
+  `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
+  requirements, installs the unit only when it changed, and enables the service only when it is
+  not enabled, so an upgrade never restarts a running service. Five tests run the script with fake
+  `python3` and `systemctl` commands and cover the dry-run plan, the apply, and the idempotent
+  re-run. Linked from the deployment guide. The dashboard is green.

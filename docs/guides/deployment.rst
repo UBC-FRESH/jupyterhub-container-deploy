@@ -16,7 +16,24 @@ The unit runs ``gunicorn`` on ``127.0.0.1:5000`` from the checkout's virtual env
    ExecStart=/opt/jupyterhub-container-deploy/.venv/bin/gunicorn -b 127.0.0.1:5000 run:app
    Restart=always
 
-Install it on the host:
+Install and upgrade script
+--------------------------
+
+``scripts/install.sh`` provisions a host in one command and is idempotent. It creates the virtual
+environment, installs the pinned requirements, installs the unit when it changed, and enables the
+service when it is not enabled. It never restarts a running service, so an upgrade does not
+interrupt a request.
+
+Print the plan first, then apply it:
+
+.. code-block:: bash
+
+   scripts/install.sh --dry-run
+   sudo scripts/install.sh --apply
+
+A second run reports what was already in place and runs no state-changing command.
+
+The manual equivalent, if you prefer it:
 
 .. code-block:: bash
 
