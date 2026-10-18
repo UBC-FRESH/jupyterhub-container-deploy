@@ -120,6 +120,12 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
 - Launched Phase 5 (operate and maintain) from `main` at `f879cc1`, on `feature/p5-operate`. Created
   the parent #28 and the task P5.1 (#29), linked as a sub-issue. The roadmap records P4 as
   `complete` and P5 as `active`. P5.1 starts in a later move.
+- Completed P5.1 (#29). Set a quarterly review cadence and recorded the first review in
+  `notes/reference/reviews.md`, with a disposition for each finding. Five findings are filed as
+  issues: #30 (set `JHD_AUTH_TOKEN` on the live host), #31 (URL-prefix and login-redirect
+  mismatch), #32 (production unit uses development settings), #33 (reconcile the unit name and
+  remove the stale unit), and #34 (run the acceptance rehearsal on a blank host). Four are
+  accepted, including the single shared token and the absence of a container image.
 - Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
   `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
   requirements, installs the unit only when it changed, and enables the service only when it is

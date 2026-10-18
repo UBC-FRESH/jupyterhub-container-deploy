@@ -189,10 +189,10 @@ Status: active
 
 Goal: keep the service current: set a review cadence and record the first review.
 
-- [ ] P5.1 Set a review cadence and record the first review (#29)
-  - [ ] Set the cadence.
-  - [ ] Record the first review with a disposition for each finding.
-  - [ ] File an issue for each finding that needs work.
+- [x] P5.1 Set a review cadence and record the first review (#29)
+  - [x] Set the cadence.
+  - [x] Record the first review with a disposition for each finding.
+  - [x] File an issue for each finding that needs work.
 
 Acceptance criteria:
 
