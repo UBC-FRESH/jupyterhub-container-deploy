@@ -14,7 +14,7 @@ keep their format.
 | P2 API and access control | #16 | `feature/p2-api-access` | complete |
 | P3 Deployment and packaging | #20 | `feature/p3-deployment` | complete |
 | P4 Verify and release | #24 | `feature/p4-release` | complete |
-| P5 Operate and maintain | #28 | `feature/p5-operate` | active |
+| P5 Operate and maintain | #28 | `feature/p5-operate` | complete |
 
 ## Lifecycle Map
 
@@ -185,7 +185,7 @@ Acceptance criteria:
 
 Parent issue: #28
 Branch: `feature/p5-operate`
-Status: active
+Status: complete
 
 Goal: keep the service current: set a review cadence and record the first review.
 
@@ -215,8 +215,9 @@ Acceptance criteria:
 5. Phase 4 is complete. Pull request #27 squash-merged into `main` as `f879cc1`; the squash tree
    equals the approved report head `435b618`. The annotated tag `v0.1.0` is on `f879cc1`, and the
    GitHub release `v0.1.0` is published. #24 is closed. Its tasks were P4.1 and P4.2 on #25 and #26.
-6. Phase 5 is active. Its parent is #28, and its task is P5.1 (#29). The branch is
-   `feature/p5-operate`, branched from `f879cc1`.
+6. Phase 5 is complete. Pull request #35 squash-merged into `main` as `c9677f8`; the squash tree
+   equals the approved report head `6ae8ba7`. #28 is closed. Its task was P5.1 (#29). The P0 to P5
+   roadmap is complete, and the service is in maintenance.
 7. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
    `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`. `GET /health` and `GET /capacity` report status, and
    `JHD_AUTH_TOKEN` protects the dashboard and the API.
