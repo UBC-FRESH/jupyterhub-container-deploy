@@ -104,6 +104,28 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   `v0.1.0` tag and the GitHub release are queued in `notes/reports/p4-closeout.md` with their exact
   commands, and wait for the maintainer's approval. All Phase 4 tasks are complete; the phase is
   ready for its close-out.
+- Queued Phase 4 for approval. Pull request #27 held `feature/p4-release` at `ccd9952`, with the
+  close-out report in `notes/reports/p4-closeout.md` (report commit `435b618`). CI run 39166602834
+  was green in all three jobs on `ccd9952`, and run 39166688549 on the report commit.
+- The maintainer approved the merge, the tag, and the release. Squash-merged PR #27 into `main` as
+  `f879cc1`, with a squash tree equal to the approved report head `435b618`; deleted the branch;
+  created the annotated tag `v0.1.0` on `f879cc1`; created the GitHub release `v0.1.0` from
+  `notes/releases/v0.1.0.md`; and closed parent #24 with a closeout comment.
+- Restarted the live service on the lab host so the released code runs. The running unit is
+  `jupyterhub-deploy.service`; the dashboard answers at
+  `http://fresh01.01101.dev/jupyterhub-container-deploy/`. It now reports 50 slots and serves
+  `GET /health` and `GET /capacity`. A leftover `jupyterhub-container-deploy.service` unit that was
+  stuck in a restart loop on port 5000 was stopped. Authentication is disabled on the host because
+  `JHD_AUTH_TOKEN` is not set in the unit; setting it is a queued host action.
+- Launched Phase 5 (operate and maintain) from `main` at `f879cc1`, on `feature/p5-operate`. Created
+  the parent #28 and the task P5.1 (#29), linked as a sub-issue. The roadmap records P4 as
+  `complete` and P5 as `active`. P5.1 starts in a later move.
+- Completed P5.1 (#29). Set a quarterly review cadence and recorded the first review in
+  `notes/reference/reviews.md`, with a disposition for each finding. Five findings are filed as
+  issues: #30 (set `JHD_AUTH_TOKEN` on the live host), #31 (URL-prefix and login-redirect
+  mismatch), #32 (production unit uses development settings), #33 (reconcile the unit name and
+  remove the stale unit), and #34 (run the acceptance rehearsal on a blank host). Four are
+  accepted, including the single shared token and the absence of a container image.
 - Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
   `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
   requirements, installs the unit only when it changed, and enables the service only when it is

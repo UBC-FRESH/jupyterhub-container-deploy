@@ -13,8 +13,8 @@ keep their format.
 | P1 Capacity and operations | #12 | `feature/p1-capacity-operations` | complete |
 | P2 API and access control | #16 | `feature/p2-api-access` | complete |
 | P3 Deployment and packaging | #20 | `feature/p3-deployment` | complete |
-| P4 Verify and release | #24 | `feature/p4-release` | active |
-| P5 Operate and maintain | TBD | `feature/p5-operate` | planned |
+| P4 Verify and release | #24 | `feature/p4-release` | complete |
+| P5 Operate and maintain | #28 | `feature/p5-operate` | active |
 
 ## Lifecycle Map
 
@@ -163,7 +163,7 @@ Acceptance criteria:
 
 Parent issue: #24
 Branch: `feature/p4-release`
-Status: active
+Status: complete
 
 Goal: verify the acceptance criteria end to end and cut the first tagged release.
 
@@ -183,17 +183,20 @@ Acceptance criteria:
 
 ## Phase 5: Operate and maintain
 
-Parent issue: TBD
+Parent issue: #28
 Branch: `feature/p5-operate`
-Status: planned
+Status: active
 
-Goal: keep the service current: triage incoming ideas, review on a cadence, and retire cleanly.
+Goal: keep the service current: set a review cadence and record the first review.
 
-- [ ] P5.1 Set a review cadence and record the first review
+- [x] P5.1 Set a review cadence and record the first review (#29)
+  - [x] Set the cadence.
+  - [x] Record the first review with a disposition for each finding.
+  - [x] File an issue for each finding that needs work.
 
 Acceptance criteria:
 
-- <State the criterion that shows this phase met its goal.>
+- A review cadence is set, and the first review is recorded with its findings and dispositions.
 
 ## Detailed Next Steps Notes
 
@@ -209,10 +212,12 @@ Acceptance criteria:
 4. Phase 3 is complete. Pull request #23 squash-merged into `main` as `a5b7b76`; the squash tree
    equals the approved report head `0f911de`. #20 is closed. Its tasks were P3.1 and P3.2 on #21
    and #22.
-5. Phase 4 is active. Its parent is #24, and its tasks are P4.1 and P4.2 on #25 and #26, linked as
-   sub-issues. The branch is `feature/p4-release`, branched from `a5b7b76`. The `v0.1.0` tag is an
-   approval-only action.
-6. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
+5. Phase 4 is complete. Pull request #27 squash-merged into `main` as `f879cc1`; the squash tree
+   equals the approved report head `435b618`. The annotated tag `v0.1.0` is on `f879cc1`, and the
+   GitHub release `v0.1.0` is published. #24 is closed. Its tasks were P4.1 and P4.2 on #25 and #26.
+6. Phase 5 is active. Its parent is #28, and its task is P5.1 (#29). The branch is
+   `feature/p5-operate`, branched from `f879cc1`.
+7. The service manages up to 50 containers, on host ports 8101 to 8150, configurable through
    `JHD_MAX_DEPLOY` and `JHD_HOST_PORT_BASE`. `GET /health` and `GET /capacity` report status, and
    `JHD_AUTH_TOKEN` protects the dashboard and the API.
-7. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
+8. The coverage gate is 95 percent branch coverage across `scripts/` and `web_service/`.
