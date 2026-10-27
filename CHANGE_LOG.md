@@ -126,6 +126,14 @@ Newest entries last. Each milestone gets a dated entry that matches the roadmap 
   mismatch), #32 (production unit uses development settings), #33 (reconcile the unit name and
   remove the stale unit), and #34 (run the acceptance rehearsal on a blank host). Four are
   accepted, including the single shared token and the absence of a container image.
+- Queued Phase 5 for approval. Pull request #35 held `feature/p5-operate` at `2c0fad7`, with the
+  close-out report in `notes/reports/p5-closeout.md` (report commit `6ae8ba7`). CI run 39167936823
+  was green in all three jobs on `2c0fad7`, and run 39168012664 on the report commit.
+- The maintainer approved the report. Squash-merged PR #35 into `main` as `c9677f8`, with a squash
+  tree equal to the approved report head `6ae8ba7`; deleted the branch; and closed parent #28.
+- Confirmed the `main` CI and Docs runs on `c9677f8` are green. Marked P5 as `complete` in
+  `ROADMAP.md`, which closes out the P0 to P5 roadmap. The maintenance backlog is #30 to #34, on
+  the quarterly review cadence in `notes/reference/reviews.md`.
 - Started P3.1 (#21). Added `scripts/install.sh`: an idempotent install and upgrade with
   `--dry-run` (default) and `--apply`. It creates the virtual environment, installs the pinned
   requirements, installs the unit only when it changed, and enables the service only when it is
